@@ -2,553 +2,908 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Telegram Poker</title>
+
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050806;color:#fff;font-family:Arial,sans-serif}
-button{font-family:inherit;border:0;color:#fff;font-weight:800}
-#app{height:100vh;background:radial-gradient(circle at 50% 35%,#174b30,#09130c 55%,#030503)}
-.header{height:55px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;background:#0008;border-bottom:1px solid #ffffff12}
-.logo{font-size:19px;font-weight:900}.logo span{color:#65e993}
-.status-wrap{display:flex;align-items:center;gap:6px}.status-dot{width:7px;height:7px;border-radius:50%;background:#f44}.status-dot.online{background:#55ed82;box-shadow:0 0 9px #55ed82}.status{font-size:11px;color:#aaa}
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
 
-.table-area{height:calc(100vh - 200px);display:flex;align-items:center;justify-content:center;position:relative}
-.table{width:92%;max-width:650px;aspect-ratio:1.62;position:relative;background:radial-gradient(circle,#199456,#0c7040 55%,#064528);border:11px solid #4a2b19;border-radius:50%;box-shadow:inset 0 0 45px #0008,0 20px 45px #000a}
-.center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;width:65%}
-.pot-label{font-size:9px;letter-spacing:1.5px;color:#ffffff99}.pot{font-size:21px;font-weight:900;margin-top:3px}.stage{display:inline-block;margin-top:5px;padding:4px 10px;border-radius:20px;background:#0004;font-size:9px;letter-spacing:1px;color:#fff9}
-.community{display:flex;justify-content:center;gap:4px;margin-top:8px;min-height:50px}
+body{
+  margin:0;
+  background:#07110c;
+  color:white;
+  font-family:Arial,sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
 
-.card{width:38px;height:53px;border-radius:6px;background:linear-gradient(145deg,#fff,#e8e8e8);color:#111;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;box-shadow:0 4px 9px #0007}
-.card.red{color:#d51f38}.card.back{background:linear-gradient(135deg,#122755,#2857a5);border:2px solid white;color:#fff}
+.app{
+  width:100%;
+  max-width:700px;
+  margin:auto;
+  padding:10px;
+}
 
-.player{position:absolute;width:105px;text-align:center;transform:translate(-50%,-50%);z-index:10}
-.player-box{position:relative;background:#050a07dc;border:1px solid #ffffff22;border-radius:13px;padding:6px;box-shadow:0 5px 15px #0006}
-.player.turn .player-box{border:2px solid #ffd63d;box-shadow:0 0 15px #ffd63d88}
-.player.me .player-box{border-color:#3ca8ff}.player.folded{opacity:.4}
-.player-name{font-size:10px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.player-chips{font-size:8px;color:#cbd7cf;margin-top:3px}
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
 
-.seat0{left:50%;bottom:-17px}.seat1{left:9%;bottom:10%}.seat2{left:4%;top:20%}
-.seat3{left:50%;top:-17px}.seat4{right:-5%;top:20%}.seat5{right:0;bottom:10%}
+.logo{
+  font-size:22px;
+  font-weight:bold;
+}
 
-.my-cards-area{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);text-align:center;z-index:30}
-.my-title{font-size:9px;letter-spacing:1.5px;color:#ffffff88;margin-bottom:5px}
-.my-cards{display:flex;justify-content:center;gap:6px}
+.status{
+  font-size:12px;
+  color:#8cff9b;
+}
 
-.controls{position:fixed;left:0;right:0;bottom:0;min-height:145px;padding:9px 11px 12px;background:#050806f7;border-top:1px solid #ffffff15;z-index:100}
-.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-button{border-radius:11px;padding:12px 4px;font-size:12px}
-button:disabled{opacity:.28}
-.fold{background:#71363b}.check{background:#2c9658}.call{background:#337fbe}.raise{background:#bd851c}.allin{background:#c63d45}
-.bottom{display:flex;justify-content:center;gap:7px;margin-top:8px}.small{padding:7px 14px;font-size:10px;background:#202722;color:#bdc8c0}
+.table{
+  position:relative;
+  width:100%;
+  aspect-ratio:1.45;
+  background:
+    radial-gradient(circle at center,#16733b 0%,#075426 55%,#043919 100%);
+  border:10px solid #432714;
+  border-radius:50%;
+  box-shadow:
+    inset 0 0 30px rgba(0,0,0,.7),
+    0 10px 30px rgba(0,0,0,.5);
+  overflow:hidden;
+}
 
-.start-screen{position:fixed;inset:0;z-index:200;background:radial-gradient(circle at 50% 35%,#184b30,#09120c 55%,#040604);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.start-screen.hidden{display:none}.start-logo{font-size:40px}.start-title{font-size:29px;font-weight:900;margin-top:10px}.start-sub{font-size:12px;color:#a9b7ae;margin-top:7px}
-.start-info{display:flex;gap:7px;margin-top:18px}.info{padding:7px 10px;border-radius:20px;background:#ffffff0d;font-size:10px}
-.start-button{margin-top:25px;width:230px;padding:16px;background:#159d58;font-size:17px}
-.loading{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:#0009;font-size:14px}.loading.show{display:flex}
-.toast{position:fixed;top:65px;left:50%;transform:translateX(-50%);background:#000e;padding:9px 15px;border-radius:12px;font-size:11px;opacity:0;z-index:600;transition:.2s}.toast.show{opacity:1}
+.center{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:70%;
+  text-align:center;
+}
 
-@media(max-width:430px){
-.table{width:94%;border-width:9px}.player{width:88px}.card{width:33px;height:46px;font-size:15px}.community .card{width:31px;height:43px;font-size:14px}.pot{font-size:17px}
+.pot{
+  font-size:20px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.stage{
+  font-size:12px;
+  color:#c9ffd0;
+  margin-bottom:10px;
+}
+
+.community{
+  display:flex;
+  justify-content:center;
+  gap:5px;
+  min-height:58px;
+}
+
+.card{
+  width:42px;
+  height:58px;
+  background:white;
+  color:#111;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  font-size:18px;
+  box-shadow:0 2px 5px rgba(0,0,0,.5);
+}
+
+.card.red{
+  color:#d71920;
+}
+
+.player{
+  position:absolute;
+  width:110px;
+  min-height:55px;
+  padding:6px;
+  border-radius:10px;
+  background:rgba(0,0,0,.48);
+  border:1px solid rgba(255,255,255,.15);
+  text-align:center;
+  font-size:12px;
+}
+
+.player.turn{
+  border:2px solid #ffd84d;
+  box-shadow:0 0 15px rgba(255,216,77,.7);
+}
+
+.player.me{
+  background:rgba(0,90,40,.8);
+}
+
+.pname{
+  font-weight:bold;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.chips{
+  margin-top:3px;
+  color:#ffd85a;
+}
+
+.p0{left:50%;top:4px;transform:translateX(-50%)}
+.p1{right:3%;top:22%}
+.p2{right:3%;bottom:22%}
+.p3{left:50%;bottom:4px;transform:translateX(-50%)}
+.p4{left:3%;bottom:22%}
+.p5{left:3%;top:22%}
+
+.my-area{
+  margin-top:12px;
+  text-align:center;
+}
+
+.my-title{
+  font-size:13px;
+  color:#aaa;
+  margin-bottom:6px;
+}
+
+.my-cards{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  min-height:78px;
+}
+
+.my-card{
+  width:55px;
+  height:75px;
+  background:white;
+  color:#111;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  font-weight:bold;
+  box-shadow:0 4px 10px rgba(0,0,0,.5);
+}
+
+.my-card.red{
+  color:#d71920;
+}
+
+.actions{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+  margin-top:12px;
+}
+
+button{
+  border:0;
+  border-radius:8px;
+  padding:12px 5px;
+  font-weight:bold;
+  font-size:14px;
+  color:white;
+  background:#1c6d3b;
+}
+
+button:active{
+  transform:scale(.97);
+}
+
+button:disabled{
+  opacity:.35;
+}
+
+.fold{background:#8b2525}
+.raise{background:#a56b08}
+.allin{background:#7b287e}
+
+.bottom{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+}
+
+.info{
+  margin-top:10px;
+  padding:10px;
+  border-radius:8px;
+  background:#101b15;
+  text-align:center;
+  font-size:13px;
+}
+
+.join{
+  margin-top:10px;
+  padding:12px;
+  background:#101b15;
+  border-radius:8px;
+}
+
+input{
+  width:100%;
+  padding:11px;
+  border-radius:7px;
+  border:1px solid #34513f;
+  background:#07110c;
+  color:white;
+  margin-bottom:8px;
+  outline:none;
+}
+
+.joinbtn{
+  width:100%;
+  background:#1769aa;
+}
+
+.refresh{
+  background:#555;
+}
+
+.leave{
+  background:#762323;
 }
 </style>
 </head>
 
 <body>
 
-<div id="app">
+<div class="app">
 
-<div class="header">
-<div class="logo">♠ <span>Telegram Poker</span></div>
-<div class="status-wrap">
-<div id="statusDot" class="status-dot"></div>
-<div id="status">Connecting...</div>
-</div>
-</div>
+  <div class="top">
+    <div class="logo">♠ Telegram Poker</div>
+    <div id="status" class="status">Connecting...</div>
+  </div>
 
-<div class="table-area">
-<div class="table">
+  <div class="join">
 
-<div id="seat0" class="player seat0"></div>
-<div id="seat1" class="player seat1"></div>
-<div id="seat2" class="player seat2"></div>
-<div id="seat3" class="player seat3"></div>
-<div id="seat4" class="player seat4"></div>
-<div id="seat5" class="player seat5"></div>
+    <input id="nameInput" placeholder="Your name" maxlength="20">
 
-<div class="center">
-<div class="pot-label">CURRENT POT</div>
-<div class="pot">🪙 <span id="pot">0</span></div>
-<div id="stage" class="stage">WAITING</div>
-<div id="community" class="community"></div>
-</div>
+    <button class="joinbtn" onclick="joinGame()">
+      JOIN TABLE 1
+    </button>
+
+  </div>
+
+  <div class="table">
+
+    <div id="players"></div>
+
+    <div class="center">
+
+      <div class="pot">
+        POT: <span id="pot">0</span>
+      </div>
+
+      <div class="stage" id="stage">
+        Waiting for players
+      </div>
+
+      <div id="community" class="community"></div>
+
+    </div>
+
+  </div>
+
+  <div class="my-area">
+
+    <div class="my-title">
+      YOUR CARDS
+    </div>
+
+    <div id="myCards" class="my-cards">
+      <div class="my-card">?</div>
+      <div class="my-card">?</div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+
+    <button onclick="action('fold')" class="fold">
+      FOLD
+    </button>
+
+    <button onclick="action('check')">
+      CHECK
+    </button>
+
+    <button onclick="action('call')">
+      CALL
+    </button>
+
+    <button onclick="raiseAction()" class="raise">
+      RAISE
+    </button>
+
+    <button onclick="action('allin')" class="allin">
+      ALL-IN
+    </button>
+
+    <button onclick="refreshGame()" class="refresh">
+      REFRESH
+    </button>
+
+  </div>
+
+  <div class="bottom">
+
+    <button onclick="leaveGame()" class="leave">
+      LEAVE TABLE
+    </button>
+
+    <button onclick="joinGame()">
+      RE-JOIN
+    </button>
+
+  </div>
+
+  <div id="info" class="info">
+    Waiting to join table...
+  </div>
 
 </div>
-
-<div class="my-cards-area">
-<div class="my-title">YOUR CARDS</div>
-<div id="myCards" class="my-cards"></div>
-</div>
-</div>
-
-<div class="controls">
-<div class="actions">
-<button class="fold" onclick="action('fold')">FOLD</button>
-<button class="check" onclick="action('check')">CHECK</button>
-<button class="call" onclick="action('call')">CALL</button>
-<button class="raise" onclick="raiseAction()">RAISE</button>
-</div>
-
-<div class="bottom">
-<button class="small allin" onclick="action('allin')">ALL-IN</button>
-<button class="small" onclick="refreshGame()">REFRESH</button>
-<button class="small" onclick="leaveTable()">LEAVE</button>
-</div>
-</div>
-
-</div>
-
-<div id="startScreen" class="start-screen">
-<div class="start-logo">♠ ♥ ♦ ♣</div>
-<div class="start-title">Telegram Poker</div>
-<div class="start-sub">Texas Hold'em · 6 Tables · Bots</div>
-<div class="start-info">
-<div class="info">👥 6 Players</div>
-<div class="info">⏱ 20 sec</div>
-<div class="info">🪙 1000 Chips</div>
-</div>
-<button class="start-button" onclick="startGame()">START GAME</button>
-</div>
-
-<div id="loading" class="loading">Connecting...</div>
-<div id="toast" class="toast"></div>
 
 <script>
 
-const tg=window.Telegram.WebApp;
-tg.ready();
-tg.expand();
+const API =
+  "https://telegram-poker-new2.onrender.com";
 
-/* NEW BACKEND */
-const API="https://telegram-poker-new2.onrender.com";
+const TABLE_ID = 1;
 
-let userId=null;
-let userName="Player";
-let tableId=1;
-let game=null;
-let timer=null;
+let tg = null;
 
-const TURN_SECONDS=20;
+try{
+  tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+}catch(e){}
+
+let playerId = null;
+let playerName = "Player";
+let joined = false;
 
 function getUser(){
 
-    const u=tg.initDataUnsafe?.user;
+  if(
+    tg &&
+    tg.initDataUnsafe &&
+    tg.initDataUnsafe.user
+  ){
 
-    if(u){
-        userId=String(u.id);
-        userName=u.first_name||u.username||"Player";
-        return;
+    const user =
+      tg.initDataUnsafe.user;
+
+    playerId =
+      String(user.id);
+
+    playerName =
+      user.first_name ||
+      user.username ||
+      "Player";
+
+  }else{
+
+    playerId =
+      localStorage.getItem("poker_player_id");
+
+    if(!playerId){
+
+      playerId =
+        "web_" +
+        Math.random()
+        .toString(36)
+        .substring(2,10);
+
+      localStorage.setItem(
+        "poker_player_id",
+        playerId
+      );
     }
 
-    let saved=localStorage.getItem("poker_test_user");
+    playerName =
+      localStorage.getItem(
+        "poker_player_name"
+      ) || "Player";
+  }
 
-    if(!saved){
-        saved="test_"+Math.floor(Math.random()*1000000);
-        localStorage.setItem("poker_test_user",saved);
-    }
-
-    userId=saved;
-    userName="Test Player";
+  document.getElementById("nameInput").value =
+    playerName;
 }
 
-function status(text,online){
+getUser();
 
-    document.getElementById("status").innerText=text;
 
-    const dot=document.getElementById("statusDot");
+async function joinGame(){
 
-    dot.classList.toggle("online",online);
-}
+  const input =
+    document.getElementById("nameInput");
 
-function toast(text){
+  const name =
+    input.value.trim() || playerName;
 
-    const el=document.getElementById("toast");
+  playerName = name;
 
-    el.innerText=text;
-    el.classList.add("show");
+  localStorage.setItem(
+    "poker_player_name",
+    name
+  );
 
-    setTimeout(()=>el.classList.remove("show"),2200);
-}
+  setStatus("Joining...");
 
-function loading(show){
+  try{
 
-    document.getElementById("loading")
-        .classList.toggle("show",show);
-}
+    const response =
+      await fetch(API + "/join",{
 
-async function request(path,options={}){
-
-    const r=await fetch(API+path,{
-        ...options,
-        headers:{
-            "Content-Type":"application/json",
-            ...(options.headers||{})
-        }
-    });
-
-    const data=await r.json();
-
-    if(!r.ok){
-        throw new Error(data.error||"Server error");
-    }
-
-    return data;
-}
-
-async function joinTable(){
-
-    const data=await request("/join",{
         method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
         body:JSON.stringify({
-            tableId:tableId,
-            playerId:userId,
-            name:userName
+
+          tableId:TABLE_ID,
+
+          playerId:playerId,
+
+          name:name
+
         })
-    });
 
-    status("Connected",true);
+      });
 
-    return data;
+    const data =
+      await response.json();
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        "Join failed"
+      );
+    }
+
+    joined = true;
+
+    setStatus("Connected");
+
+    document.getElementById("info").innerText =
+      "Joined table successfully.";
+
+    await refreshGame();
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus("Connection error");
+
+    document.getElementById("info").innerText =
+      "Could not join table: " +
+      error.message;
+  }
 }
+
 
 async function refreshGame(){
 
-    try{
+  try{
 
-        const data=await request(
-            "/game/"+tableId+
-            "?playerId="+
-            encodeURIComponent(userId)
-        );
+    const response =
+      await fetch(
+        API +
+        "/game/" +
+        TABLE_ID +
+        "?playerId=" +
+        encodeURIComponent(playerId)
+      );
 
-        if(data.success){
-            game=data.game;
-            render(game);
-            status("Connected",true);
-        }
+    const data =
+      await response.json();
 
-    }catch(e){
+    if(!response.ok){
 
-        console.error(e);
-        status("Offline",false);
-
+      throw new Error(
+        data.error ||
+        "Game error"
+      );
     }
+
+    renderGame(data);
+
+    setStatus("Connected");
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus("Offline");
+
+    document.getElementById("info").innerText =
+      "Backend connection failed.";
+  }
 }
 
-async function startGame(){
 
-    try{
+function renderGame(game){
 
-        loading(true);
+  if(!game){
+    return;
+  }
 
-        await joinTable();
-        await refreshGame();
+  document.getElementById("pot").innerText =
+    game.pot || 0;
 
-        document
-            .getElementById("startScreen")
-            .classList.add("hidden");
+  document.getElementById("stage").innerText =
+    game.started
+      ? String(game.stage || "").toUpperCase()
+      : "WAITING FOR PLAYERS";
 
-        toast("♠ Joined table!");
+  renderCommunity(
+    game.communityCards || []
+  );
 
-    }catch(e){
+  renderPlayers(
+    game.players || []
+  );
 
-        console.error(e);
-        toast(e.message);
-
-    }finally{
-
-        loading(false);
-    }
-}
-
-async function action(type,amount=0){
-
-    if(!game || !game.started){
-        toast("Game is not running");
-        return;
-    }
-
-    if(game.currentPlayer!==userId){
-        toast("It's not your turn");
-        return;
-    }
-
-    try{
-
-        loading(true);
-
-        const data=await request("/action",{
-            method:"POST",
-            body:JSON.stringify({
-                tableId:tableId,
-                playerId:userId,
-                action:type,
-                amount:amount
-            })
-        });
-
-        if(data.success){
-
-            game=data.game;
-            render(game);
-
-        }else{
-
-            toast(data.error||"Action failed");
-        }
-
-    }catch(e){
-
-        toast(e.message);
-
-    }finally{
-
-        loading(false);
-    }
-}
-
-function raiseAction(){
-
-    if(!game || game.currentPlayer!==userId){
-        toast("It's not your turn");
-        return;
-    }
-
-    const current=Number(game.currentBet||20);
-
-    const amount=prompt(
-        "Raise to:",
-        String(current+20)
+  const me =
+    (game.players || []).find(
+      p => String(p.id) === String(playerId)
     );
 
-    if(!amount)return;
+  renderMyCards(
+    me ? (me.cards || []) : []
+  );
 
-    const value=Number(amount);
+  if(game.message){
 
-    if(!Number.isFinite(value)){
-        toast("Invalid amount");
-        return;
+    document.getElementById("info").innerText =
+      game.message;
+
+  }else if(game.winner){
+
+    document.getElementById("info").innerText =
+      "Winner: " + game.winner;
+
+  }else if(game.currentPlayer){
+
+    const current =
+      (game.players || []).find(
+        p => String(p.id) ===
+        String(game.currentPlayer)
+      );
+
+    if(current){
+
+      document.getElementById("info").innerText =
+        "Turn: " + current.name;
     }
-
-    action("raise",value);
+  }
 }
 
-async function leaveTable(){
-
-    try{
-
-        await request("/leave",{
-            method:"POST",
-            body:JSON.stringify({
-                tableId:tableId,
-                playerId:userId
-            })
-        });
-
-        game=null;
-
-        document
-            .getElementById("startScreen")
-            .classList.remove("hidden");
-
-        renderEmpty();
-
-        toast("Left table");
-
-    }catch(e){
-
-        toast(e.message);
-    }
-}
-
-function cardElement(card,back=false){
-
-    const el=document.createElement("div");
-    el.className="card";
-
-    if(back){
-
-        el.classList.add("back");
-        el.innerText="♠";
-
-    }else{
-
-        el.innerText=card;
-
-        if(card.includes("♥")||card.includes("♦")){
-            el.classList.add("red");
-        }
-    }
-
-    return el;
-}
-
-function renderEmpty(){
-
-    document.getElementById("pot").innerText="0";
-    document.getElementById("stage").innerText="WAITING";
-    document.getElementById("community").innerHTML="";
-    document.getElementById("myCards").innerHTML="";
-
-    for(let i=0;i<6;i++){
-        document.getElementById("seat"+i).innerHTML="";
-    }
-}
 
 function renderPlayers(players){
 
-    for(let i=0;i<6;i++){
+  const container =
+    document.getElementById("players");
 
-        const seat=document.getElementById("seat"+i);
+  container.innerHTML = "";
 
-        seat.innerHTML="";
-        seat.className="player seat"+i;
+  players.forEach((p,index)=>{
 
-        const p=players[i];
-
-        if(!p)continue;
-
-        if(p.id===userId)
-            seat.classList.add("me");
-
-        if(p.isTurn)
-            seat.classList.add("turn");
-
-        if(p.folded)
-            seat.classList.add("folded");
-
-        const box=document.createElement("div");
-        box.className="player-box";
-
-        const name=document.createElement("div");
-        name.className="player-name";
-        name.innerText=p.name+(p.isBot?" 🤖":"");
-
-        const chips=document.createElement("div");
-        chips.className="player-chips";
-        chips.innerText="🪙 "+
-            Number(p.chips||0).toLocaleString();
-
-        box.appendChild(name);
-        box.appendChild(chips);
-
-        if(p.isTurn){
-
-            const timer=document.createElement("div");
-            timer.style.marginTop="3px";
-            timer.style.color="#ffd63d";
-            timer.style.fontSize="10px";
-            timer.innerText="YOUR TURN";
-
-            box.appendChild(timer);
-        }
-
-        seat.appendChild(box);
+    if(index >= 6){
+      return;
     }
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "player p" + index;
+
+    if(p.isTurn){
+      div.classList.add("turn");
+    }
+
+    if(String(p.id) ===
+       String(playerId)){
+      div.classList.add("me");
+    }
+
+    const name =
+      p.name ||
+      (p.isBot ? "Bot" : "Player");
+
+    div.innerHTML = `
+      <div class="pname">
+        ${escapeHtml(name)}
+      </div>
+
+      <div class="chips">
+        🟡 ${p.chips ?? 0}
+      </div>
+
+      ${
+        p.isBot
+        ? '<div style="font-size:10px">BOT</div>'
+        : ''
+      }
+
+      ${
+        p.folded
+        ? '<div style="color:#ff7777">FOLDED</div>'
+        : ''
+      }
+
+      ${
+        p.allIn
+        ? '<div style="color:#ffd84d">ALL-IN</div>'
+        : ''
+      }
+    `;
+
+    container.appendChild(div);
+
+  });
+
 }
 
-function render(game){
 
-    if(!game)return;
+function renderCommunity(cards){
 
-    document.getElementById("pot").innerText=
-        Number(game.pot||0).toLocaleString();
+  const container =
+    document.getElementById("community");
 
-    document.getElementById("stage").innerText=
-        String(game.stage||"waiting").toUpperCase();
+  container.innerHTML = "";
 
-    renderPlayers(game.players||[]);
+  cards.forEach(card=>{
 
-    const community=
-        document.getElementById("community");
+    container.appendChild(
+      createCard(card,"card")
+    );
 
-    community.innerHTML="";
+  });
 
-    (game.communityCards||[]).forEach(card=>{
-        community.appendChild(cardElement(card));
-    });
-
-    const mine=
-        document.getElementById("myCards");
-
-    mine.innerHTML="";
-
-    const me=(game.players||[])
-        .find(p=>p.id===userId);
-
-    if(me && me.cards && me.cards.length){
-
-        me.cards.forEach(card=>{
-            mine.appendChild(cardElement(card));
-        });
-
-    }else{
-
-        if(game.started){
-
-            mine.appendChild(cardElement("",true));
-            mine.appendChild(cardElement("",true));
-
-        }
-    }
-
-    if(game.started){
-
-        document
-            .getElementById("startScreen")
-            .classList.add("hidden");
-
-    }else if(!game.winner){
-
-        document
-            .getElementById("startScreen")
-            .classList.remove("hidden");
-    }
-
-    if(game.message){
-        toast(game.message);
-    }
 }
 
-async function init(){
 
-    getUser();
+function renderMyCards(cards){
 
-    try{
+  const container =
+    document.getElementById("myCards");
 
-        await joinTable();
-        await refreshGame();
+  container.innerHTML = "";
 
-    }catch(e){
+  if(!cards.length){
 
-        console.error(e);
+    for(let i=0;i<2;i++){
 
-        status("Offline",false);
+      const div =
+        document.createElement("div");
 
-        toast("Unable to connect");
+      div.className = "my-card";
+      div.innerText = "?";
+
+      container.appendChild(div);
     }
 
-    if(timer)
-        clearInterval(timer);
+    return;
+  }
 
-    timer=setInterval(refreshGame,1000);
+  cards.forEach(card=>{
+
+    container.appendChild(
+      createCard(card,"my-card")
+    );
+
+  });
+
 }
 
-init();
+
+function createCard(value,className){
+
+  const div =
+    document.createElement("div");
+
+  div.className =
+    className;
+
+  const text =
+    String(value);
+
+  if(
+    text.includes("♥") ||
+    text.includes("♦")
+  ){
+    div.classList.add("red");
+  }
+
+  div.innerText =
+    text;
+
+  return div;
+}
+
+
+async function action(type,amount=0){
+
+  if(!joined){
+
+    document.getElementById("info").innerText =
+      "First join the table.";
+
+    return;
+  }
+
+  try{
+
+    const response =
+      await fetch(API + "/action",{
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+          tableId:TABLE_ID,
+
+          playerId:playerId,
+
+          action:type,
+
+          amount:amount
+
+        })
+
+      });
+
+    const data =
+      await response.json();
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        "Action failed"
+      );
+    }
+
+    renderGame(data);
+
+  }catch(error){
+
+    document.getElementById("info").innerText =
+      error.message;
+  }
+}
+
+
+function raiseAction(){
+
+  const amount =
+    prompt(
+      "Raise amount:",
+      "40"
+    );
+
+  if(amount === null){
+    return;
+  }
+
+  const value =
+    Number(amount);
+
+  if(
+    !Number.isFinite(value) ||
+    value <= 0
+  ){
+
+    alert("Invalid amount.");
+    return;
+  }
+
+  action("raise",value);
+}
+
+
+async function leaveGame(){
+
+  if(!joined){
+    return;
+  }
+
+  try{
+
+    await fetch(
+      API + "/leave",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+          tableId:TABLE_ID,
+
+          playerId:playerId
+
+        })
+      }
+    );
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
+  joined = false;
+
+  document.getElementById("info").innerText =
+    "You left the table.";
+
+  setStatus("Disconnected");
+
+  refreshGame();
+}
+
+
+function setStatus(text){
+
+  document.getElementById("status")
+    .innerText = text;
+}
+
+
+function escapeHtml(text){
+
+  return String(text)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+
+/* Automatic live update */
+
+setInterval(()=>{
+
+  refreshGame();
+
+},1000);
+
+
+/* Initial connection test */
+
+refreshGame();
 
 </script>
 
