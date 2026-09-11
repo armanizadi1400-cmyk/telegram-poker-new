@@ -1,11 +1,912 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=./Frontend/">
-  <title>Telegram Poker</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Telegram Poker</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+body{
+  margin:0;
+  background:#07110c;
+  color:white;
+  font-family:Arial,sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+.app{
+  width:100%;
+  max-width:700px;
+  margin:auto;
+  padding:10px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.status{
+  font-size:12px;
+  color:#8cff9b;
+}
+
+.table{
+  position:relative;
+  width:100%;
+  aspect-ratio:1.45;
+  background:
+    radial-gradient(circle at center,#16733b 0%,#075426 55%,#043919 100%);
+  border:10px solid #432714;
+  border-radius:50%;
+  box-shadow:
+    inset 0 0 30px rgba(0,0,0,.7),
+    0 10px 30px rgba(0,0,0,.5);
+  overflow:hidden;
+}
+
+.center{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:70%;
+  text-align:center;
+}
+
+.pot{
+  font-size:20px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.stage{
+  font-size:12px;
+  color:#c9ffd0;
+  margin-bottom:10px;
+}
+
+.community{
+  display:flex;
+  justify-content:center;
+  gap:5px;
+  min-height:58px;
+}
+
+.card{
+  width:42px;
+  height:58px;
+  background:white;
+  color:#111;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  font-size:18px;
+  box-shadow:0 2px 5px rgba(0,0,0,.5);
+}
+
+.card.red{
+  color:#d71920;
+}
+
+.player{
+  position:absolute;
+  width:110px;
+  min-height:55px;
+  padding:6px;
+  border-radius:10px;
+  background:rgba(0,0,0,.48);
+  border:1px solid rgba(255,255,255,.15);
+  text-align:center;
+  font-size:12px;
+}
+
+.player.turn{
+  border:2px solid #ffd84d;
+  box-shadow:0 0 15px rgba(255,216,77,.7);
+}
+
+.player.me{
+  background:rgba(0,90,40,.8);
+}
+
+.pname{
+  font-weight:bold;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.chips{
+  margin-top:3px;
+  color:#ffd85a;
+}
+
+.p0{left:50%;top:4px;transform:translateX(-50%)}
+.p1{right:3%;top:22%}
+.p2{right:3%;bottom:22%}
+.p3{left:50%;bottom:4px;transform:translateX(-50%)}
+.p4{left:3%;bottom:22%}
+.p5{left:3%;top:22%}
+
+.my-area{
+  margin-top:12px;
+  text-align:center;
+}
+
+.my-title{
+  font-size:13px;
+  color:#aaa;
+  margin-bottom:6px;
+}
+
+.my-cards{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  min-height:78px;
+}
+
+.my-card{
+  width:55px;
+  height:75px;
+  background:white;
+  color:#111;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  font-weight:bold;
+  box-shadow:0 4px 10px rgba(0,0,0,.5);
+}
+
+.my-card.red{
+  color:#d71920;
+}
+
+.actions{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+  margin-top:12px;
+}
+
+button{
+  border:0;
+  border-radius:8px;
+  padding:12px 5px;
+  font-weight:bold;
+  font-size:14px;
+  color:white;
+  background:#1c6d3b;
+}
+
+button:active{
+  transform:scale(.97);
+}
+
+button:disabled{
+  opacity:.35;
+}
+
+.fold{background:#8b2525}
+.raise{background:#a56b08}
+.allin{background:#7b287e}
+
+.bottom{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+}
+
+.info{
+  margin-top:10px;
+  padding:10px;
+  border-radius:8px;
+  background:#101b15;
+  text-align:center;
+  font-size:13px;
+}
+
+.join{
+  margin-top:10px;
+  padding:12px;
+  background:#101b15;
+  border-radius:8px;
+}
+
+input{
+  width:100%;
+  padding:11px;
+  border-radius:7px;
+  border:1px solid #34513f;
+  background:#07110c;
+  color:white;
+  margin-bottom:8px;
+  outline:none;
+}
+
+.joinbtn{
+  width:100%;
+  background:#1769aa;
+}
+
+.refresh{
+  background:#555;
+}
+
+.leave{
+  background:#762323;
+}
+</style>
 </head>
+
 <body>
-  Loading Poker...
+
+<div class="app">
+
+  <div class="top">
+    <div class="logo">♠ Telegram Poker</div>
+    <div id="status" class="status">Connecting...</div>
+  </div>
+
+  <div class="join">
+
+    <input id="nameInput" placeholder="Your name" maxlength="20">
+
+    <button class="joinbtn" onclick="joinGame()">
+      JOIN TABLE 1
+    </button>
+
+  </div>
+
+  <div class="table">
+
+    <div id="players"></div>
+
+    <div class="center">
+
+      <div class="pot">
+        POT: <span id="pot">0</span>
+      </div>
+
+      <div class="stage" id="stage">
+        Waiting for players
+      </div>
+
+      <div id="community" class="community"></div>
+
+    </div>
+
+  </div>
+
+  <div class="my-area">
+
+    <div class="my-title">
+      YOUR CARDS
+    </div>
+
+    <div id="myCards" class="my-cards">
+      <div class="my-card">?</div>
+      <div class="my-card">?</div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+
+    <button onclick="action('fold')" class="fold">
+      FOLD
+    </button>
+
+    <button onclick="action('check')">
+      CHECK
+    </button>
+
+    <button onclick="action('call')">
+      CALL
+    </button>
+
+    <button onclick="raiseAction()" class="raise">
+      RAISE
+    </button>
+
+    <button onclick="action('allin')" class="allin">
+      ALL-IN
+    </button>
+
+    <button onclick="refreshGame()" class="refresh">
+      REFRESH
+    </button>
+
+  </div>
+
+  <div class="bottom">
+
+    <button onclick="leaveGame()" class="leave">
+      LEAVE TABLE
+    </button>
+
+    <button onclick="joinGame()">
+      RE-JOIN
+    </button>
+
+  </div>
+
+  <div id="info" class="info">
+    Waiting to join table...
+  </div>
+
+</div>
+
+<script>
+
+const API =
+  "https://telegram-poker-new2.onrender.com";
+
+const TABLE_ID = 1;
+
+let tg = null;
+
+try{
+  tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+}catch(e){}
+
+let playerId = null;
+let playerName = "Player";
+let joined = false;
+
+function getUser(){
+
+  if(
+    tg &&
+    tg.initDataUnsafe &&
+    tg.initDataUnsafe.user
+  ){
+
+    const user =
+      tg.initDataUnsafe.user;
+
+    playerId =
+      String(user.id);
+
+    playerName =
+      user.first_name ||
+      user.username ||
+      "Player";
+
+  }else{
+
+    playerId =
+      localStorage.getItem("poker_player_id");
+
+    if(!playerId){
+
+      playerId =
+        "web_" +
+        Math.random()
+        .toString(36)
+        .substring(2,10);
+
+      localStorage.setItem(
+        "poker_player_id",
+        playerId
+      );
+    }
+
+    playerName =
+      localStorage.getItem(
+        "poker_player_name"
+      ) || "Player";
+  }
+
+  document.getElementById("nameInput").value =
+    playerName;
+}
+
+getUser();
+
+
+async function joinGame(){
+
+  const input =
+    document.getElementById("nameInput");
+
+  const name =
+    input.value.trim() || playerName;
+
+  playerName = name;
+
+  localStorage.setItem(
+    "poker_player_name",
+    name
+  );
+
+  setStatus("Joining...");
+
+  try{
+
+    const response =
+      await fetch(API + "/join",{
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+          tableId:TABLE_ID,
+
+          playerId:playerId,
+
+          name:name
+
+        })
+
+      });
+
+    const data =
+      await response.json();
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        "Join failed"
+      );
+    }
+
+    joined = true;
+
+    setStatus("Connected");
+
+    document.getElementById("info").innerText =
+      "Joined table successfully.";
+
+    await refreshGame();
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus("Connection error");
+
+    document.getElementById("info").innerText =
+      "Could not join table: " +
+      error.message;
+  }
+}
+
+
+async function refreshGame(){
+
+  try{
+
+    const response =
+      await fetch(
+        API +
+        "/game/" +
+        TABLE_ID +
+        "?playerId=" +
+        encodeURIComponent(playerId)
+      );
+
+    const data =
+      await response.json();
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        "Game error"
+      );
+    }
+
+    renderGame(data);
+
+    setStatus("Connected");
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus("Offline");
+
+    document.getElementById("info").innerText =
+      "Backend connection failed.";
+  }
+}
+
+
+function renderGame(game){
+
+  if(!game){
+    return;
+  }
+
+  document.getElementById("pot").innerText =
+    game.pot || 0;
+
+  document.getElementById("stage").innerText =
+    game.started
+      ? String(game.stage || "").toUpperCase()
+      : "WAITING FOR PLAYERS";
+
+  renderCommunity(
+    game.communityCards || []
+  );
+
+  renderPlayers(
+    game.players || []
+  );
+
+  const me =
+    (game.players || []).find(
+      p => String(p.id) === String(playerId)
+    );
+
+  renderMyCards(
+    me ? (me.cards || []) : []
+  );
+
+  if(game.message){
+
+    document.getElementById("info").innerText =
+      game.message;
+
+  }else if(game.winner){
+
+    document.getElementById("info").innerText =
+      "Winner: " + game.winner;
+
+  }else if(game.currentPlayer){
+
+    const current =
+      (game.players || []).find(
+        p => String(p.id) ===
+        String(game.currentPlayer)
+      );
+
+    if(current){
+
+      document.getElementById("info").innerText =
+        "Turn: " + current.name;
+    }
+  }
+}
+
+
+function renderPlayers(players){
+
+  const container =
+    document.getElementById("players");
+
+  container.innerHTML = "";
+
+  players.forEach((p,index)=>{
+
+    if(index >= 6){
+      return;
+    }
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "player p" + index;
+
+    if(p.isTurn){
+      div.classList.add("turn");
+    }
+
+    if(String(p.id) ===
+       String(playerId)){
+      div.classList.add("me");
+    }
+
+    const name =
+      p.name ||
+      (p.isBot ? "Bot" : "Player");
+
+    div.innerHTML = `
+      <div class="pname">
+        ${escapeHtml(name)}
+      </div>
+
+      <div class="chips">
+        🟡 ${p.chips ?? 0}
+      </div>
+
+      ${
+        p.isBot
+        ? '<div style="font-size:10px">BOT</div>'
+        : ''
+      }
+
+      ${
+        p.folded
+        ? '<div style="color:#ff7777">FOLDED</div>'
+        : ''
+      }
+
+      ${
+        p.allIn
+        ? '<div style="color:#ffd84d">ALL-IN</div>'
+        : ''
+      }
+    `;
+
+    container.appendChild(div);
+
+  });
+
+}
+
+
+function renderCommunity(cards){
+
+  const container =
+    document.getElementById("community");
+
+  container.innerHTML = "";
+
+  cards.forEach(card=>{
+
+    container.appendChild(
+      createCard(card,"card")
+    );
+
+  });
+
+}
+
+
+function renderMyCards(cards){
+
+  const container =
+    document.getElementById("myCards");
+
+  container.innerHTML = "";
+
+  if(!cards.length){
+
+    for(let i=0;i<2;i++){
+
+      const div =
+        document.createElement("div");
+
+      div.className = "my-card";
+      div.innerText = "?";
+
+      container.appendChild(div);
+    }
+
+    return;
+  }
+
+  cards.forEach(card=>{
+
+    container.appendChild(
+      createCard(card,"my-card")
+    );
+
+  });
+
+}
+
+
+function createCard(value,className){
+
+  const div =
+    document.createElement("div");
+
+  div.className =
+    className;
+
+  const text =
+    String(value);
+
+  if(
+    text.includes("♥") ||
+    text.includes("♦")
+  ){
+    div.classList.add("red");
+  }
+
+  div.innerText =
+    text;
+
+  return div;
+}
+
+
+async function action(type,amount=0){
+
+  if(!joined){
+
+    document.getElementById("info").innerText =
+      "First join the table.";
+
+    return;
+  }
+
+  try{
+
+    const response =
+      await fetch(API + "/action",{
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+          tableId:TABLE_ID,
+
+          playerId:playerId,
+
+          action:type,
+
+          amount:amount
+
+        })
+
+      });
+
+    const data =
+      await response.json();
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        "Action failed"
+      );
+    }
+
+    renderGame(data);
+
+  }catch(error){
+
+    document.getElementById("info").innerText =
+      error.message;
+  }
+}
+
+
+function raiseAction(){
+
+  const amount =
+    prompt(
+      "Raise amount:",
+      "40"
+    );
+
+  if(amount === null){
+    return;
+  }
+
+  const value =
+    Number(amount);
+
+  if(
+    !Number.isFinite(value) ||
+    value <= 0
+  ){
+
+    alert("Invalid amount.");
+    return;
+  }
+
+  action("raise",value);
+}
+
+
+async function leaveGame(){
+
+  if(!joined){
+    return;
+  }
+
+  try{
+
+    await fetch(
+      API + "/leave",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+          tableId:TABLE_ID,
+
+          playerId:playerId
+
+        })
+      }
+    );
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
+  joined = false;
+
+  document.getElementById("info").innerText =
+    "You left the table.";
+
+  setStatus("Disconnected");
+
+  refreshGame();
+}
+
+
+function setStatus(text){
+
+  document.getElementById("status")
+    .innerText = text;
+}
+
+
+function escapeHtml(text){
+
+  return String(text)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+
+/* Automatic live update */
+
+setInterval(()=>{
+
+  refreshGame();
+
+},1000);
+
+
+/* Initial connection test */
+
+refreshGame();
+
+</script>
+
 </body>
 </html>
